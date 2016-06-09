@@ -182,6 +182,14 @@ var game = (function() {
         grid.move(direction);
     }
 
+    function camera() {
+        var gum = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+        var constraints = { video: { width: 640, height: 360 } };
+        gum.call(navigator, constraints, function(stream) {
+            video.src = URL.createObjectURL(stream);
+        }, function() {});
+    }
+
     function solve() {
         if (!started || solving) {
             return null;
@@ -210,7 +218,13 @@ var game = (function() {
         }
     }
 
-    return { start: start, move: move, solve: solve, render: render };
+    return {
+        start: start,
+        move: move,
+        camera: camera,
+        solve: solve,
+        render: render
+    };
 })();
 
 
@@ -228,6 +242,7 @@ document.addEventListener('keydown', function(e) {
     switch (e.keyCode) {
         case 83: return game.start(); // "S"
         case 81: return game.solve(); // "Q"
+        case 77: return game.camera(); // "M"
         case 38: return game.move('up'); // "Up"
         case 40: return game.move('down'); // "Down"
         case 37: return game.move('left'); // "Left"

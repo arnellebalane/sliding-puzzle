@@ -2,7 +2,7 @@ var canvas = document.querySelector('canvas');
 var context = canvas.getContext('2d');
 
 var video = document.createElement('video');
-video.src = 'https://d3heg6bx5jbtwp.cloudfront.net/video/enc/kXSUWT2dw7XRrq3oxqGfx6-360.webm';
+video.src = 'https://d3heg6bx5jbtwp.cloudfront.net/video/enc/FkFqcLd88amRhQQdA8fPVK-360.webm';
 video.autoplay = true;
 video.loop = true;
 video.crossOrigin = 'anonymous';

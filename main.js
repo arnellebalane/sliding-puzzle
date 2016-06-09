@@ -20,7 +20,7 @@ var grid = (function() {
     var w = grid[0].length;
     var h = grid.length;
 
-    var mp = { x: w - 1, y: w - 1 };
+    var mp = null;
 
     function getCoordinates(n, original) {
         if (original) {
@@ -53,7 +53,7 @@ var grid = (function() {
 
     function showMoveableTile() {
         grid[h - 1][w - 1] = 0;
-        console.info(grid);
+        mp = { x: w - 1, y: h - 1 };
     }
 
     function up() {
@@ -88,13 +88,22 @@ var grid = (function() {
         }
     }
 
+    function move(direction) {
+        if (!mp) {
+            return null;
+        }
+        switch (direction) {
+            case 'up': return up();
+            case 'down': return down();
+            case 'left': return left();
+            case 'right': return right();
+        }
+    }
+
     return {
         getPosition: getPosition,
         showMoveableTile: showMoveableTile,
-        up: up,
-        down: down,
-        left: left,
-        right: right
+        move: move
     };
 })();
 
@@ -129,9 +138,9 @@ function startGame() {
 document.addEventListener('keydown', function(e) {
     switch (e.keyCode) {
         case 83: startGame(); break; // "S"
-        case 38: grid.up(); break; // "Up"
-        case 40: grid.down(); break; // "Down"
-        case 37: grid.left(); break; // "Left"
-        case 39: grid.right(); break; // "Right"
+        case 38: grid.move('up'); break; // "Up"
+        case 40: grid.move('down'); break; // "Down"
+        case 37: grid.move('left'); break; // "Left"
+        case 39: grid.move('right'); break; // "Right"
     }
 });

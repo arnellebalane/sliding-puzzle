@@ -2,7 +2,7 @@ var canvas = document.querySelector('canvas');
 var context = canvas.getContext('2d');
 
 var video = document.createElement('video');
-video.src = 'https://d3heg6bx5jbtwp.cloudfront.net/video/enc/kXSUWT2dw7XRrq3oxqGfx6-720.webm';
+video.src = 'https://d3heg6bx5jbtwp.cloudfront.net/video/enc/kXSUWT2dw7XRrq3oxqGfx6-360.webm';
 video.autoplay = true;
 video.loop = true;
 video.play();
@@ -164,8 +164,8 @@ var game = (function() {
     var started = false;
     var solving = false;
 
-    var width = 1280;
-    var height = 720;
+    var width = 640;
+    var height = 360;
 
     canvas.width = width;
     canvas.height = height;

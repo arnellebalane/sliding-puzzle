@@ -306,6 +306,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+alert('Check "Console" for controls. :)');
 console.info('Controls:');
 console.info('  "1" - Grayscale Filter');
 console.info('  "2" - Negative Filter');

@@ -106,7 +106,6 @@ var grid = (function() {
         if (!mp) {
             return null;
         }
-        console.info(direction, ignore);
         if (!ignore) {
             moves.push(direction);
         }
@@ -116,6 +115,7 @@ var grid = (function() {
             case 'left': return left();
             case 'right': return right();
         }
+        return null;
     }
 
     function shuffle(times) {
@@ -135,7 +135,6 @@ var grid = (function() {
             move(direction);
             previous = direction;
         }
-        console.info(moves, moves.length);
     }
 
     function solve() {
@@ -146,6 +145,7 @@ var grid = (function() {
             case 'left': return move('right', true);
             case 'right': return move('left', true);
         }
+        return true;
     }
 
     return {
@@ -183,8 +183,18 @@ var game = (function() {
     }
 
     function solve() {
+        if (!started || solving) {
+            return null;
+        }
         solving = true;
-        setInterval(grid.solve, 100);
+        var timer = setInterval(function() {
+            var solved = grid.solve();
+            if (solved) {
+                started = false;
+                solving = false;
+                clearInterval(timer);
+            }
+        }, 100);
     }
 
     function render() {

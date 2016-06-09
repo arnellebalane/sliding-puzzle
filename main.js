@@ -161,6 +161,7 @@ var grid = (function() {
 
 var game = (function() {
     var dimension = 10;
+    var readied = false;
     var started = false;
     var solving = false;
 
@@ -171,12 +172,19 @@ var game = (function() {
     canvas.height = height;
     grid.generate(dimension);
 
+    function ready() {
+        readied = true;
+        grid.showMoveableTile();
+    }
+
     function start() {
         if (started) {
             return null;
         }
+        if (!readied) {
+            ready();
+        }
         started = true;
-        grid.showMoveableTile();
         grid.shuffle(100);
     }
 
@@ -224,6 +232,7 @@ var game = (function() {
     }
 
     return {
+        ready: ready,
         start: start,
         move: move,
         camera: camera,
@@ -245,6 +254,7 @@ setInterval(game.render, 1000 / 60);
 
 document.addEventListener('keydown', function(e) {
     switch (e.keyCode) {
+        case 65: return game.ready(); // "A"
         case 83: return game.start(); // "S"
         case 81: return game.solve(); // "Q"
         case 77: return game.camera(); // "M"
@@ -253,4 +263,5 @@ document.addEventListener('keydown', function(e) {
         case 37: return game.move('left'); // "Left"
         case 39: return game.move('right'); // "Right"
     }
+    console.info(e.keyCode);
 });

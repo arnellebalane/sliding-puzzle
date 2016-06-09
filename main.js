@@ -5,6 +5,7 @@ var video = document.createElement('video');
 video.src = 'https://d3heg6bx5jbtwp.cloudfront.net/video/enc/kXSUWT2dw7XRrq3oxqGfx6-360.webm';
 video.autoplay = true;
 video.loop = true;
+video.crossOrigin = 'anonymous';
 video.play();
 
 
@@ -159,6 +160,30 @@ var grid = (function() {
 })();
 
 
+var filters = {
+    grayscale: function(data) {
+        for (var i = 0; i < data.length; i += 4) {
+            var r = data[i];
+            var g = data[i + 1];
+            var b = data[i + 2];
+            var average = (r + g + b) / 3;
+            data[i] = average;
+            data[i + 1] = average;
+            data[i + 2] = average;
+        }
+        return data;
+    },
+    negative: function(data) {
+        for (var i = 0; i < data.length; i += 4) {
+            data[i] = 256 - data[i];
+            data[i + 1] = 256 - data[i + 1];
+            data[i + 2] = 256 - data[i + 2];
+        }
+        return data;
+    }
+};
+
+
 var game = (function() {
     var dimension = 10;
     var readied = false;
@@ -167,6 +192,8 @@ var game = (function() {
 
     var width = 640;
     var height = 360;
+
+    var activeFilter = null;
 
     canvas.width = width;
     canvas.height = height;
@@ -203,6 +230,10 @@ var game = (function() {
         }, function() {});
     }
 
+    function filter(style) {
+        activeFilter = style || null;
+    }
+
     function solve() {
         if (!started || solving) {
             return null;
@@ -229,6 +260,12 @@ var game = (function() {
                 context.drawImage(video, vp.x, vp.y, vp.width, vp.height, cp.x, cp.y, cp.width, cp.height);
             }
         }
+
+        if (activeFilter) {
+            var data = context.getImageData(0, 0, canvas.width, canvas.height);
+            data.data = filters[activeFilter](data.data);
+            context.putImageData(data, 0, 0);
+        }
     }
 
     return {
@@ -236,6 +273,7 @@ var game = (function() {
         start: start,
         move: move,
         camera: camera,
+        filter: filter,
         solve: solve,
         render: render
     };
@@ -254,6 +292,9 @@ setInterval(game.render, 1000 / 60);
 
 document.addEventListener('keydown', function(e) {
     switch (e.keyCode) {
+        case 49: return game.filter('grayscale'); // "1"
+        case 50: return game.filter('negative'); // "2"
+        case 48: return game.filter(null); // "0"
         case 65: return game.ready(); // "A"
         case 83: return game.start(); // "S"
         case 81: return game.solve(); // "Q"
@@ -263,5 +304,4 @@ document.addEventListener('keydown', function(e) {
         case 37: return game.move('left'); // "Left"
         case 39: return game.move('right'); // "Right"
     }
-    console.info(e.keyCode);
 });

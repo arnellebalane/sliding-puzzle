@@ -100,11 +100,46 @@ var grid = (function() {
         }
     }
 
+    function shuffle(times) {
+        var directions = ['up', 'down', 'left', 'right'];
+        var previous = null;
+        for (var i = 0; i < times; i++) {
+            var index = Math.floor(Math.random() * directions.length);
+            var direction = directions[index];
+            if (direction === 'left' && previous === 'right'
+            || direction === 'right' && previous === 'left'
+            || direction === 'up' && previous === 'down'
+            || direction === 'down' && previous === 'up') {
+                i--;
+                continue;
+            }
+            move(direction);
+            previous = direction;
+        }
+    }
+
     return {
         getPosition: getPosition,
         showMoveableTile: showMoveableTile,
-        move: move
+        move: move,
+        shuffle: shuffle
     };
+})();
+
+
+var game = (function() {
+    var started = false;
+
+    function start() {
+        if (started) {
+            return null;
+        }
+        started = true;
+        grid.showMoveableTile();
+        grid.shuffle(30);
+    }
+
+    return { start: start };
 })();
 
 
@@ -127,17 +162,12 @@ function clearCanvas() {
 }
 
 
-function startGame() {
-    grid.showMoveableTile();
-}
-
-
 
 
 
 document.addEventListener('keydown', function(e) {
     switch (e.keyCode) {
-        case 83: startGame(); break; // "S"
+        case 83: game.start(); break; // "S"
         case 38: grid.move('up'); break; // "Up"
         case 40: grid.move('down'); break; // "Down"
         case 37: grid.move('left'); break; // "Left"

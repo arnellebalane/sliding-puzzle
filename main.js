@@ -12,10 +12,15 @@ setInterval(render, 1000 / 60);
 
 var grid = (function() {
     var grid = [
-        [ 1, 9, 3 ],
-        [ 4, 7, 6 ],
-        [ 5, 8, 2 ]
+        [ 1, 2, 3 ],
+        [ 4, 5, 6 ],
+        [ 7, 8, 9 ]
     ];
+
+    var w = grid[0].length;
+    var h = grid.length;
+
+    var mp = { x: w - 1, y: w - 1 };
 
     function getCoordinates(n, original) {
         if (original) {
@@ -34,8 +39,9 @@ var grid = (function() {
 
     function getPosition(i, width, height, original) {
         var coords = getCoordinates(i, original);
-        var w = grid[0].length;
-        var h = grid.length;
+        if (!coords) {
+            return null;
+        }
         var position = {
             x: width / w * coords.x,
             y: height / h * coords.y,
@@ -45,15 +51,87 @@ var grid = (function() {
         return position;
     }
 
-    return { getPosition: getPosition };
+    function showMoveableTile() {
+        grid[h - 1][w - 1] = 0;
+        console.info(grid);
+    }
+
+    function up() {
+        if (mp.y > 0) {
+            grid[mp.y][mp.x] = grid[mp.y - 1][mp.x];
+            grid[mp.y - 1][mp.x] = 0;
+            mp.y--;
+        }
+    }
+
+    function down() {
+        if (mp.y < h - 1) {
+            grid[mp.y][mp.x] = grid[mp.y + 1][mp.x];
+            grid[mp.y + 1][mp.x] = 0;
+            mp.y++;
+        }
+    }
+
+    function left() {
+        if (mp.x > 0) {
+            grid[mp.y][mp.x] = grid[mp.y][mp.x - 1];
+            grid[mp.y][mp.x - 1] = 0;
+            mp.x--;
+        }
+    }
+
+    function right() {
+        if (mp.x < w - 1) {
+            grid[mp.y][mp.x] = grid[mp.y][mp.x + 1];
+            grid[mp.y][mp.x + 1] = 0;
+            mp.x++;
+        }
+    }
+
+    return {
+        getPosition: getPosition,
+        showMoveableTile: showMoveableTile,
+        up: up,
+        down: down,
+        left: left,
+        right: right
+    };
 })();
 
 
 function render() {
+    clearCanvas();
+
     for (var i = 1; i <= 9; i++) {
         var vp = grid.getPosition(i, 640, 360, true);
         var cp = grid.getPosition(i, canvas.width, canvas.height);
 
-        context.drawImage(video, vp.x, vp.y, vp.width, vp.height, cp.x, cp.y, cp.width, cp.height);
+        if (vp && cp) {
+            context.drawImage(video, vp.x, vp.y, vp.width, vp.height, cp.x, cp.y, cp.width, cp.height);
+        }
     }
 }
+
+
+function clearCanvas() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+
+function startGame() {
+    grid.showMoveableTile();
+}
+
+
+
+
+
+document.addEventListener('keydown', function(e) {
+    switch (e.keyCode) {
+        case 83: startGame(); break; // "S"
+        case 38: grid.up(); break; // "Up"
+        case 40: grid.down(); break; // "Down"
+        case 37: grid.left(); break; // "Left"
+        case 39: grid.right(); break; // "Right"
+    }
+});

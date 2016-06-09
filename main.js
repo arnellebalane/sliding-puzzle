@@ -21,6 +21,7 @@ var grid = (function() {
     var h = grid.length;
 
     var mp = null;
+    var moves = [];
 
     function getCoordinates(n, original) {
         if (original) {
@@ -56,8 +57,17 @@ var grid = (function() {
         mp = { x: w - 1, y: h - 1 };
     }
 
+    function canmove(direction) {
+        switch (direction) {
+            case 'up': return mp.y > 0;
+            case 'down': return mp.y < h - 1;
+            case 'left': return mp.x > 0;
+            case 'right': return mp.x < w - 1;
+        }
+    }
+
     function up() {
-        if (mp.y > 0) {
+        if (canmove('up')) {
             grid[mp.y][mp.x] = grid[mp.y - 1][mp.x];
             grid[mp.y - 1][mp.x] = 0;
             mp.y--;
@@ -65,7 +75,7 @@ var grid = (function() {
     }
 
     function down() {
-        if (mp.y < h - 1) {
+        if (canmove('down')) {
             grid[mp.y][mp.x] = grid[mp.y + 1][mp.x];
             grid[mp.y + 1][mp.x] = 0;
             mp.y++;
@@ -73,7 +83,7 @@ var grid = (function() {
     }
 
     function left() {
-        if (mp.x > 0) {
+        if (canmove('left')) {
             grid[mp.y][mp.x] = grid[mp.y][mp.x - 1];
             grid[mp.y][mp.x - 1] = 0;
             mp.x--;
@@ -81,16 +91,20 @@ var grid = (function() {
     }
 
     function right() {
-        if (mp.x < w - 1) {
+        if (canmove('right')) {
             grid[mp.y][mp.x] = grid[mp.y][mp.x + 1];
             grid[mp.y][mp.x + 1] = 0;
             mp.x++;
         }
     }
 
-    function move(direction) {
+    function move(direction, ignore) {
         if (!mp) {
             return null;
+        }
+        console.info(direction, ignore);
+        if (!ignore) {
+            moves.push(direction);
         }
         switch (direction) {
             case 'up': return up();
@@ -109,12 +123,24 @@ var grid = (function() {
             if (direction === 'left' && previous === 'right'
             || direction === 'right' && previous === 'left'
             || direction === 'up' && previous === 'down'
-            || direction === 'down' && previous === 'up') {
+            || direction === 'down' && previous === 'up'
+            || !canmove(direction)) {
                 i--;
                 continue;
             }
             move(direction);
             previous = direction;
+        }
+        console.info(moves, moves.length);
+    }
+
+    function solve() {
+        var last = moves.pop();
+        switch (last) {
+            case 'up': return move('down', true);
+            case 'down': return move('up', true);
+            case 'left': return move('right', true);
+            case 'right': return move('left', true);
         }
     }
 
@@ -122,13 +148,15 @@ var grid = (function() {
         getPosition: getPosition,
         showMoveableTile: showMoveableTile,
         move: move,
-        shuffle: shuffle
+        shuffle: shuffle,
+        solve: solve
     };
 })();
 
 
 var game = (function() {
     var started = false;
+    var solving = false;
 
     function start() {
         if (started) {
@@ -139,7 +167,19 @@ var game = (function() {
         grid.shuffle(30);
     }
 
-    return { start: start };
+    function move(direction) {
+        if (solving) {
+            return null;
+        }
+        grid.move(direction);
+    }
+
+    function solve() {
+        solving = true;
+        setInterval(grid.solve, 100);
+    }
+
+    return { start: start, move: move, solve: solve };
 })();
 
 
@@ -167,10 +207,11 @@ function clearCanvas() {
 
 document.addEventListener('keydown', function(e) {
     switch (e.keyCode) {
-        case 83: game.start(); break; // "S"
-        case 38: grid.move('up'); break; // "Up"
-        case 40: grid.move('down'); break; // "Down"
-        case 37: grid.move('left'); break; // "Left"
-        case 39: grid.move('right'); break; // "Right"
+        case 83: return game.start(); // "S"
+        case 81: return game.solve(); // "Q"
+        case 38: return game.move('up'); // "Up"
+        case 40: return game.move('down'); // "Down"
+        case 37: return game.move('left'); // "Left"
+        case 39: return game.move('right'); // "Right"
     }
 });

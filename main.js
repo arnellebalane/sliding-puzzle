@@ -7,21 +7,25 @@ video.autoplay = true;
 video.loop = true;
 video.play();
 
-setInterval(render, 1000 / 60);
-
 
 var grid = (function() {
-    var grid = [
-        [ 1, 2, 3 ],
-        [ 4, 5, 6 ],
-        [ 7, 8, 9 ]
-    ];
-
-    var w = grid[0].length;
-    var h = grid.length;
+    var grid = [];
+    var w = 0;
+    var h = 0;
 
     var mp = null;
     var moves = [];
+
+    function generate(dimension) {
+        for (var y = 0; y < dimension; y++) {
+            grid[y] = [];
+            for (var x = 0; x < dimension; x++) {
+                grid[y][x] = y * dimension + (x + 1);
+            }
+        }
+        w = dimension;
+        h = dimension;
+    }
 
     function getCoordinates(n, original) {
         if (original) {
@@ -145,6 +149,7 @@ var grid = (function() {
     }
 
     return {
+        generate: generate,
         getPosition: getPosition,
         showMoveableTile: showMoveableTile,
         move: move,
@@ -155,8 +160,11 @@ var grid = (function() {
 
 
 var game = (function() {
+    var dimension = 5;
     var started = false;
     var solving = false;
+
+    grid.generate(dimension);
 
     function start() {
         if (started) {
@@ -179,22 +187,21 @@ var game = (function() {
         setInterval(grid.solve, 100);
     }
 
-    return { start: start, move: move, solve: solve };
-})();
+    function render() {
+        clearCanvas();
 
+        for (var i = 1; i <= dimension * dimension; i++) {
+            var vp = grid.getPosition(i, 640, 360, true);
+            var cp = grid.getPosition(i, canvas.width, canvas.height);
 
-function render() {
-    clearCanvas();
-
-    for (var i = 1; i <= 9; i++) {
-        var vp = grid.getPosition(i, 640, 360, true);
-        var cp = grid.getPosition(i, canvas.width, canvas.height);
-
-        if (vp && cp) {
-            context.drawImage(video, vp.x, vp.y, vp.width, vp.height, cp.x, cp.y, cp.width, cp.height);
+            if (vp && cp) {
+                context.drawImage(video, vp.x, vp.y, vp.width, vp.height, cp.x, cp.y, cp.width, cp.height);
+            }
         }
     }
-}
+
+    return { start: start, move: move, solve: solve, render: render };
+})();
 
 
 function clearCanvas() {
@@ -204,6 +211,8 @@ function clearCanvas() {
 
 
 
+
+setInterval(game.render, 1000 / 60);
 
 document.addEventListener('keydown', function(e) {
     switch (e.keyCode) {

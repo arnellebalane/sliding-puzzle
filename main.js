@@ -305,3 +305,13 @@ document.addEventListener('keydown', function(e) {
         case 39: return game.move('right'); // "Right"
     }
 });
+
+console.info('Controls:');
+console.info('  "1" - Grayscale Filter');
+console.info('  "2" - Negative Filter');
+console.info('  "0" - No Filter');
+console.info('  "A" - Ready Puzzle');
+console.info('  "S" - Shuffle Tiles');
+console.info('  "Q" - Solve Puzzle');
+console.info('  "M" - Switch To Camera Input');
+console.info('  "Up/Left/Right/Down" - Move Pink Tile');
